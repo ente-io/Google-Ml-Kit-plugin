@@ -1,7 +1,9 @@
 package com.google_ml_kit.vision;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.mlkit.vision.common.InputImage;
@@ -11,6 +13,10 @@ import java.io.IOException;
 import java.util.Map;
 
 import io.flutter.plugin.common.MethodChannel;
+
+import android.graphics.Bitmap;
+
+import androidx.annotation.RequiresApi;
 
 public class InputImageConverter {
 
@@ -38,6 +44,13 @@ public class InputImageConverter {
                     (int) (double) metaData.get("height"),
                     (int) metaData.get("rotation"),
                     InputImage.IMAGE_FORMAT_NV21);
+            return inputImage;
+        } else if (model.equals("filebytes")) {
+//            ImageDecoder.Source source = ImageDecoder.createSource(ByteBuffer.wrap((byte[]) imageData.get("bytes")));
+//            Bitmap bitmap = ImageDecoder.decodeBitmap(source);
+            byte[] bytes = (byte[]) imageData.get("bytes");
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            inputImage = InputImage.fromBitmap(bitmap, 0);
             return inputImage;
         } else {
             result.error("InputImageConverterError", "Invalid Input Image", null);

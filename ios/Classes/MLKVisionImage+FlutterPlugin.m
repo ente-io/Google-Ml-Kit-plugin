@@ -9,6 +9,8 @@
         return [self filePathToVisionImage:imageData[@"path"]];
     } else if ([@"bytes" isEqualToString:imageType]) {
         return [self bytesToVisionImage:imageData];
+    } else if ([@"filebytes" isEqualToString:imageType]) {
+        return [self fileBytesToVisionImage:imageData];
     } else {
         NSString *errorReason = [NSString stringWithFormat:@"No image type for: %@", imageType];
         @throw [NSException exceptionWithName:NSInvalidArgumentException
@@ -20,18 +22,30 @@
 + (MLKVisionImage *)filePathToVisionImage:(NSString *)filePath {
     UIImage *image = [UIImage imageWithContentsOfFile:filePath];
     
-    if (image.imageOrientation != UIImageOrientationUp) {
-        CGImageRef imgRef = image.CGImage;
-        CGRect bounds = CGRectMake(0, 0, CGImageGetWidth(imgRef), CGImageGetHeight(imgRef));
-        UIGraphicsBeginImageContext(bounds.size);
-        CGContextDrawImage(UIGraphicsGetCurrentContext(), bounds, imgRef);
-        UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
+    // if (image.imageOrientation != UIImageOrientationUp) {
+    //     CGImageRef imgRef = image.CGImage;
+    //     CGRect bounds = CGRectMake(0, 0, CGImageGetWidth(imgRef), CGImageGetHeight(imgRef));
+    //     UIGraphicsBeginImageContext(bounds.size);
+    //     CGContextDrawImage(UIGraphicsGetCurrentContext(), bounds, imgRef);
+    //     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    //     UIGraphicsEndImageContext();
         
-        image = newImage;
-    }
+    //     image = newImage;
+    // }
     
-    return [[MLKVisionImage alloc] initWithImage:image];
+    MLKVisionImage *visionImage = [[MLKVisionImage alloc] initWithImage:image];
+    visionImage.orientation = image.imageOrientation;
+    // print("image.imageOrientation: " + image.imageOrientation);
+    return visionImage;
+}
+
++ (MLKVisionImage *)fileBytesToVisionImage:(NSDictionary *)imageData {
+    FlutterStandardTypedData *fileByteData = imageData[@"bytes"];
+    NSData *fileData = fileByteData.data;
+    UIImage *image = [UIImage imageWithData:fileData];
+    MLKVisionImage *visionImage = [[MLKVisionImage alloc] initWithImage:image];
+    visionImage.orientation = image.imageOrientation;
+    return visionImage;
 }
 
 + (MLKVisionImage *)bytesToVisionImage:(NSDictionary *)imageData {

@@ -161,6 +161,10 @@ class InputImage {
         bytes: bytes, imageType: 'bytes', inputImageData: inputImageData);
   }
 
+  factory InputImage.fromFileBytes({required Uint8List bytes}) {
+    return InputImage._(bytes: bytes, imageType: 'filebytes');
+  }
+
   final String? filePath;
   final Uint8List? bytes;
   final String imageType;
